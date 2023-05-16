@@ -31,7 +31,6 @@ $("#FormName").submit((event) => {
 
   if (nameStart.val() == "") {
     nameStart.addClass("border-error");
-    return;
   } else {
     const passaValor = function (valor) {
       window.location = "home.html?userName=" + valor;
@@ -58,6 +57,14 @@ const handleFetchPokemons = async (page = 1) => {
   return results;
 };
 
+const handleFetchSpecies = async (url) => {
+  const response = await fetch(url);
+
+  const results = await response.json();
+
+  return results;
+};
+
 const buildElements = async (pokemons) => {
   const base = document.getElementById("base");
 
@@ -71,7 +78,8 @@ const buildElements = async (pokemons) => {
 
 const createCard = async (pokemonData) => {
   const pokemon = await handleGetPokemonByUrl(pokemonData.url);
-
+  const [firstType, secondType] = pokemon.types.map((type) => type.type.name);
+  const normalizedFirstType = firstType.toLowerCase();
   const itemId = pokemon.id;
   const imageURL =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
@@ -88,7 +96,6 @@ const createCard = async (pokemonData) => {
   const nameArea = document.createElement("h5");
   const imageArea = document.createElement("img");
   const firstTypeArea = document.createElement("p");
-
   const descriptionArea = document.createElement("p");
   const idArea = document.createElement("div");
   const pokeId = document.createElement("p");
@@ -113,9 +120,6 @@ const createCard = async (pokemonData) => {
   nameArea.innerHTML = pokemon.name;
   descriptionArea.innerHTML = pokemon.desc;
   pokeId.innerHTML = `#${pokemon.id}`;
-
-  const [firstType, secondType] = pokemon.types.map((type) => type.type.name);
-
   firstTypeArea.innerHTML = firstType;
 
   column.appendChild(card);
@@ -138,9 +142,82 @@ const createCard = async (pokemonData) => {
   cardRow.appendChild(cardColumnImage);
   cardColumnImage.appendChild(idArea);
   idArea.appendChild(pokeId);
-
-  const normalizedFirstType = firstType.toLowerCase();
   cardBody.classList.add(`bg-${normalizedFirstType}-color`);
+
+  card.addEventListener("click", async () => {
+    const species = await handleFetchSpecies(pokemon.species.url);
+    const specieDescription = species.flavor_text_entries[7].flavor_text;
+    const firstEggGroup =
+      species.egg_groups[0].name.charAt(0).toUpperCase() +
+      species.egg_groups[0].name.slice(1);
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modal-body");
+    const modalDescription = document.getElementById("description");
+    const pokemonHeight = document.getElementById("height");
+    const pokemonWeight = document.getElementById("weight");
+    const eggGroups = document.getElementById("eggGroups");
+    const eggCycle = document.getElementById("eggCycle");
+    const pokeImageHolder = document.getElementById("pokeImageHolder");
+    const pokeId = document.getElementById("pokeId");
+    const pokeImage = document.createElement("img");
+    const baseStat = document.getElementById("baseStats");
+    baseStat.innerHTML = "";
+
+    pokeImageHolder.innerHTML = "";
+
+    pokemon.stats.forEach((stats) => {
+      const statRow = document.createElement("div");
+      const statNameColumn = document.createElement("div");
+      const statValueColumn = document.createElement("div");
+      const statProgressBarColumn = document.createElement("div");
+      const statName = document.createElement("p");
+      const statValue = document.createElement("p");
+
+      statRow.className = "row mb-3";
+      statNameColumn.className = "col-4";
+      statValueColumn.className = "col-2";
+      statProgressBarColumn.className = "col d-flex align-items-center";
+      statName.className = "mb-0";
+      statValue.className = "mb-0 fw-semibold";
+      statProgressBarColumn.innerHTML = `
+        <div class="progress w-100" role="progressbar" aria-valuenow="${stats.base_stat}" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar bg-${normalizedFirstType}-color" id="progressBar" style="width: ${stats.base_stat}%"></div>
+        </div>
+      `;
+      statName.innerHTML =
+        stats.stat.name.charAt(0).toUpperCase() +
+        stats.stat.name.slice(1).replace("-", " ");
+      statValue.innerHTML = stats.base_stat;
+      baseStat.appendChild(statRow);
+      statRow.appendChild(statNameColumn);
+      statNameColumn.appendChild(statName);
+      statRow.appendChild(statValueColumn);
+      statValueColumn.appendChild(statValue);
+      statRow.appendChild(statProgressBarColumn);
+    });
+
+    modalBody.classList.add(`bg-${normalizedFirstType}-color`);
+    modalTitle.classList.add("txt-uppercase");
+    modalTitle.innerHTML = pokemon.name;
+    modalDescription.innerHTML = specieDescription;
+    pokemonHeight.innerHTML = pokemon.height + "cm";
+    pokemonWeight.innerHTML = pokemon.weight + "kg";
+    eggGroups.innerHTML = firstEggGroup;
+    eggCycle.innerHTML = firstEggGroup;
+    if (species.egg_groups.length > 1) {
+      const secondEggGroup =
+        species.egg_groups[1].name.charAt(0).toUpperCase() +
+        species.egg_groups[1].name.slice(1);
+      eggGroups.innerHTML = firstEggGroup + ", " + secondEggGroup;
+      eggCycle.innerHTML = firstEggGroup + ", " + secondEggGroup;
+    }
+    pokeImage.src = imageLink;
+    pokeImage.style = "height: 15rem; margin: auto;";
+    pokeId.innerHTML = `#${pokemon.id}`;
+
+    pokeImageHolder.appendChild(pokeImage);
+    $("#modalDetails").modal("show");
+  });
 
   return column;
 };
@@ -169,10 +246,10 @@ const handleGetPokemonByUrl = async (url) => {
 };
 
 function queryString(parameter) {
-  var loc = location.search.substring(1, location.search.length);
-  var param_value = false;
-  var params = loc.split("&");
-  for (i = 0; i < params.length; i++) {
+  let loc = location.search.substring(1, location.search.length);
+  let param_value = false;
+  let params = loc.split("&");
+  for (let i = 0; i < params.length; i++) {
     param_name = params[i].substring(0, params[i].indexOf("="));
     if (param_name == parameter) {
       param_value = params[i].substring(params[i].indexOf("=") + 1);
@@ -186,7 +263,6 @@ function queryString(parameter) {
 }
 
 document.querySelector("#Search").addEventListener("keyup", function () {
-  console.log("banana");
   let filtro = document.querySelector("#Search").value.toLowerCase();
   let itens = document.querySelectorAll("#base > .card-holder");
 
@@ -204,11 +280,8 @@ filterTypes.addEventListener("click", function (e) {
   const selectedType = e.target.textContent.toLowerCase();
   const cards = document.querySelectorAll("#base .card-holder");
 
-  console.log(cards);
-
   for (let card of cards) {
     const type = card.querySelector(".badge-types:first-of-type").textContent;
-    console.log(type);
 
     if (type === selectedType) {
       card.style.display = "block";

@@ -19,6 +19,7 @@
   --steel-color: #b8b8d0;
   --dark-blue: #4052d9;
   --orange: #feb101;
+  --light-gray: #aeaeae;
 }
 
 *::-webkit-scrollbar-track {
@@ -116,6 +117,10 @@
 
 .text-blue {
   color: var(--dark-blue) !important;
+}
+
+.text-gray {
+  color: var(--light-gray);
 }
 
 .opacity-0 {
@@ -280,4 +285,42 @@ input {
 .page-item > .page-link:hover {
   color: var(--orange);
   background-color: transparent;
+}
+
+#information {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 -5px 20px 0px #00000040;
+}
+
+#detailsTab {
+  border: 0;
+}
+
+#detailsTab > li {
+  width: 50%;
+}
+
+#detailsTab > li > button,
+#detailsTab > li > button:hover {
+  width: 100%;
+  border: 0;
+  color: #aeaeae;
+  border-bottom: 2px solid white;
+  font-weight: 500;
+}
+
+#detailsTab > li > button.active {
+  border-bottom: 2px solid var(--dark-blue);
+  color: var(--dark-blue);
+}
+
+#description {
+  text-transform: lowercase;
+}
+
+.progress {
+  height: 0.5rem;
+  margin: auto;
 }
