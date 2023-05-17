@@ -324,3 +324,12 @@ input {
   height: 0.5rem;
   margin: auto;
 }
+
+.card {
+  cursor: pointer;
+}
+
+.card-body:hover {
+  box-shadow: 1px 1px 12px 1px #6a6a6a6c !important;
+  transition: 300ms ease-in-out;
+}
