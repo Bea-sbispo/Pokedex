@@ -1,8 +1,7 @@
 # Pokedex
 
-Pokedex app built with [PokeAPI](https://pokeapi.co/)
+Pokedex app utilizando [PokeAPI](https://pokeapi.co/)
 
-🏠Home section
-![image](img/homepage.png)
+![image](readme-cover.jpg)
 
-[⭐Access the page here⭐](https://bea-sbispo.github.io/Pokedex/)
+[⭐Acesse a página aqui⭐](https://bea-sbispo.github.io/Pokedex/)
